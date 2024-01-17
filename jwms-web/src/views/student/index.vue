@@ -41,6 +41,7 @@
           <td>{{ student.id }}</td>
           <td>{{ student.name }}</td>
           <td>
+            <button @click="creatP(student.id)">添加头像</button>
             <button @click="editStudent(student)">编辑</button>
             <button @click="deleteStudent(student.id)">删除</button>
           </td>

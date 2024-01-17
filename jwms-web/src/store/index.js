@@ -3,24 +3,16 @@ import Vuex from 'vuex'
 import getters from './getters'
 import app from './modules/app'
 import settings from './modules/settings'
-import user from './modules/user'
+import user from './modules/user' // 引入 user 模块
 import tagsView from './modules/tagsView'
 
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
-  state: {
-    userType: null // 初始时没有用户类型
-  },
-  mutations: {
-    setUserType(state, userType) {
-      state.userType = userType
-    }
-  },
   modules: {
     app,
     settings,
-    user,
+    user, // 用户信息模块
     tagsView
   },
   getters

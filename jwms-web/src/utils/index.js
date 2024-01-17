@@ -115,3 +115,8 @@ export function param2Obj(url) {
   })
   return obj
 }
+
+import store from '@/store'
+export function getCurrentUserType() {
+  return store.getters['user/currentUserType']
+}

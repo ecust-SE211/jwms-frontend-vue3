@@ -1,20 +1,20 @@
 <template>
   <div>
-    <h1>班级管理</h1>
-    <!-- 搜索和添加班级部分 -->
+    <h1>教学班管理</h1>
+    <!-- 搜索和添加教学班部分 -->
     <div>
-      <input v-model="searchQuery" placeholder="搜索班级">
+      <input v-model="searchQuery" placeholder="搜索教学班">
       <button @click="searchClasses">搜索</button>
-      <button @click="addClass">新增班级</button>
+      <button @click="addClass">新增教教学班</button>
     </div>
 
-    <!-- 模态弹框，用于新增或编辑班级 -->
+    <!-- 模态弹框，用于新增或编辑教学班 -->
     <div v-if="showModal" class="modal">
       <div class="modal-content">
         <span class="close" @click="showModal = false">&times;</span>
         <h2>{{ modalTitle }}</h2>
-        <input v-model="tempClass.id" placeholder="班级编号">
-        <input v-model="tempClass.cid" placeholder="教学班号">
+        <input v-model="tempClass.id" placeholder="教学班编号">
+        <input v-model="tempClass.cid" placeholder="课程号">
         <div class="modal-button-container">
           <button @click="confirmClassChange">{{ modalButtonLabel }}</button>
           <button @click="cancelModal">取消</button>
@@ -22,13 +22,13 @@
       </div>
     </div>
 
-    <!-- 班级表格 -->
+    <!-- 教学班表格 -->
     <table>
       <thead>
         <tr>
           <th />
-          <th>班级编号</th>
-          <th>教学班号</th>
+          <th>教学班编号</th>
+          <th>课程号</th>
           <th>操作</th>
         </tr>
       </thead>
@@ -94,25 +94,25 @@ export default {
   },
   methods: {
     addClass() {
-      // 添加班级逻辑
-      this.modalTitle = '新增班级'
+      // 添加教学班逻辑
+      this.modalTitle = '新增教学班'
       this.modalButtonLabel = '添加'
       this.tempClass = { id: '', cid: '' }
       this.showModal = true
     },
     editClass(tclass) {
-      // 编辑班级逻辑
-      this.modalTitle = '编辑班级'
+      // 编辑教学班逻辑
+      this.modalTitle = '编辑教学班'
       this.modalButtonLabel = '保存'
       this.tempClass = { ...tclass }
       this.showModal = true
     },
     confirmClassChange() {
       if (this.modalButtonLabel === '保存') {
-        // 发送编辑班级的请求
+        // 发送编辑教学班的请求
         axios.post('http://localhost:8088/class', this.tempClass)
           .then(response => {
-            console.log('班级编辑成功', response.data)
+            console.log('教学班编辑成功', response.data)
             const index = this.classes.findIndex(s => s.id === this.tempClass.id)
             if (index !== -1) {
               this.classes.splice(index, 1, { ...this.tempClass })
@@ -120,18 +120,18 @@ export default {
             this.showModal = false
           })
           .catch(error => {
-            console.error('班级编辑失败', error)
+            console.error('教学班编辑失败', error)
           })
       } else if (this.modalButtonLabel === '添加') {
-        // 发送添加新班级的请求
+        // 发送添加新教学班的请求
         axios.post('http://localhost:8088/class', this.tempClass)
           .then(response => {
-            console.log('班级添加成功', response.data)
-            this.fetchClasses() // 重新获取班级列表
+            console.log('教学班添加成功', response.data)
+            this.fetchClasses() // 重新获取教学班列表
             this.showModal = false
           })
           .catch(error => {
-            console.error('班级添加失败', error)
+            console.error('教学班添加失败', error)
           })
       }
     },
@@ -139,28 +139,28 @@ export default {
       this.showModal = false
     },
     deleteClass(id) {
-      // 发送删除班级的请求
+      // 发送删除教学班的请求
       axios.delete(`http://localhost:8088/class/${id}`)
         .then(response => {
-          console.log('班级删除成功', response.data)
+          console.log('教学班删除成功', response.data)
           this.classes = this.classes.filter(tclass => tclass.id !== id)
         })
         .catch(error => {
-          console.error('班级删除失败', error)
+          console.error('教学班删除失败', error)
         })
     },
 
     batchDelete() {
       const selectedClasses = this.classes.filter(tclass => tclass.isSelected)
       const selectedids = selectedClasses.map(tclass => tclass.id)
-      // 发送批量删除班级的请求
+      // 发送批量删除教学班的请求
       axios.post('http://localhost:8088/class/del/batch', selectedids)
         .then(response => {
-          console.log('班级批量删除成功', response.data)
+          console.log('教学班批量删除成功', response.data)
           this.classes = this.classes.filter(tclass => !selectedids.includes(tclass.id))
         })
         .catch(error => {
-          console.error('班级批量删除失败', error)
+          console.error('教学班批量删除失败', error)
         })
     },
     fetchClasses() {
@@ -172,7 +172,7 @@ export default {
           this.totalPagesFromBackend = response.data.data.pages
         })
         .catch(error => {
-          console.error('获取班级数据失败', error)
+          console.error('获取教学班数据失败', error)
         })
     },
     fetchData(pageNum, pageSize, query) {
@@ -184,7 +184,7 @@ export default {
           this.totalPages = response.data.data.total
         })
         .catch(error => {
-          console.error('获取班级数据失败', error)
+          console.error('获取教学班数据失败', error)
         })
     },
 

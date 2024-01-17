@@ -60,7 +60,6 @@
 <script>
 import { validUsername } from '@/utils/validate'
 import axios from 'axios'
-import { generateRoutes } from '@/router'
 
 export default {
   name: 'Login',
@@ -74,8 +73,8 @@ export default {
     }
 
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('密码不得少于6位'))
+      if (value.length < 1) {
+        callback(new Error('密码不得为空'))
       } else {
         callback()
       }
@@ -83,8 +82,8 @@ export default {
 
     return {
       loginForm: {
-        id: '3',
-        password: '123456'
+        id: '',
+        password: ''
       },
       loginRules: {
         id: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -94,11 +93,11 @@ export default {
       passwordType: 'password',
       redirect: undefined,
       options: [
-        { value: '1', label: '教务老师' },
-        { value: '2', label: '老师' },
-        { value: '3', label: '学生' }
+        { value: 'jwteacher', label: '教务老师' },
+        { value: 'teacher', label: '老师' },
+        { value: 'student', label: '学生' }
       ],
-      value: '1'
+      value: ''
     }
   },
   watch: {
@@ -118,22 +117,35 @@ export default {
     },
     handleLoginSuccess(response) {
       this.loading = false
+      if (response.data.code !== '200') {
+        console.error('登录失败', response.data.msg)
+        alert('用户名或密码错误')
+        return
+      }
       console.log('登录成功', response)
-      this.$nextTick(() => {
-        let redirectPath
-        switch (this.value) {
-          case '1': // 教务老师
-            redirectPath = '/sys'
-            break
-          case '2': // 老师
-            redirectPath = '/class'
-            break
-          case '3': // 学生
-            redirectPath = '/studentuse'
-            break
-        }
-        this.$router.push(redirectPath)
-      })
+
+      let redirectPath
+      let queryParams = {} // 在这里声明 queryParams
+      switch (this.value) {
+        case 'jwteacher':
+          redirectPath = '/jwUse'
+          break
+        case 'teacher':
+          redirectPath = '/checkclass'
+          const teacherId = response.data.data.id
+          if (teacherId) {
+            queryParams = { teacherId: teacherId }
+          }
+          break
+        case 'student':
+          redirectPath = '/choose'
+          const studentId = response.data.data.id
+          if (studentId) {
+            queryParams = { studentId: studentId }
+          }
+          break
+      }
+      this.$router.push({ path: redirectPath, query: queryParams })
     },
 
     handleLoginError(error) {
@@ -151,7 +163,7 @@ export default {
       this.loading = true
       // 根据用户选择的身份类型调用不同的登录接口
       switch (this.value) {
-        case '1':
+        case 'jwteacher':
           axios.post('http://localhost:8088/jwteacher/login', userPayload)
             .then(response => {
               this.handleLoginSuccess(response)
@@ -160,18 +172,29 @@ export default {
               this.handleLoginError(error)
             })
           break
-        case '2':
+        case 'teacher': // 教师登录
           axios.post('http://localhost:8088/teacher/login', userPayload)
             .then(response => {
+              const teacher = response.data.data.id
+              console.log('teacherId: ', response.data.data.id)
+              if (teacher && teacher.id) {
+                localStorage.setItem('teacherId', teacher.id) // 存储教师ID
+              }
               this.handleLoginSuccess(response)
             })
             .catch(error => {
+              console.error('登录失败:', error)
               this.handleLoginError(error)
             })
           break
-        case '3':
+        case 'student':
           axios.post('http://localhost:8088/student/login', userPayload)
             .then(response => {
+              const student = response.data.data.id
+              console.log('studentId: ', response.data.data.id)
+              if (student && student.id) {
+                localStorage.setItem('studentId', student.id) // 存储学生ID
+              }
               this.handleLoginSuccess(response)
             })
             .catch(error => {

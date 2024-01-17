@@ -30,6 +30,7 @@ import { isExternal } from '@/utils/validate'
 import Item from './Item'
 import AppLink from './Link'
 import FixiOSBug from './FixiOSBug'
+import { getCurrentUserType } from '@/utils'
 
 export default {
   name: 'SidebarItem',
@@ -56,6 +57,16 @@ export default {
     this.onlyOneChild = null
     return {}
   },
+  // 侧边栏组件，例如 Sidebar.vue
+  computed: {
+    accessibleRoutes() {
+      const userType = getCurrentUserType() // 替换为您获取用户类型的实际逻辑
+      return this.$router.options.routes.filter(route => {
+        return route.meta && route.meta.value && route.meta.value.includes(userType)
+      })
+    }
+  },
+
   methods: {
     hasOneShowingChild(children = [], parent) {
       const showingChildren = children.filter(item => {
